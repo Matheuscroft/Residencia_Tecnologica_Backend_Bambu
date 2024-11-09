@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "TB_ARQUITETO")
+@Table(name = "arquiteto")
 public class ArquitetoModel {
 
 
@@ -18,7 +18,7 @@ public class ArquitetoModel {
 
     private String cpf;
 
-    private String numero_cau;
+    private String cadastro_cau;
 
     private String email;
 
@@ -48,12 +48,12 @@ public class ArquitetoModel {
         this.cpf = cpf;
     }
 
-    public String getNumero_cau() {
-        return numero_cau;
+    public String getCadastro_cau() {
+        return cadastro_cau;
     }
 
-    public void setNumero_cau(String numero_cau) {
-        this.numero_cau = numero_cau;
+    public void setCadastro_cau(String cadastro_cau) {
+        this.cadastro_cau = cadastro_cau;
     }
 
     public String getEmail() {
