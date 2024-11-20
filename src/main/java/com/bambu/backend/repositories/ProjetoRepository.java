@@ -12,6 +12,7 @@ public interface ProjetoRepository extends JpaRepository<ProjetoModel, UUID> {
 
     List<ProjetoModel> findByNomeDoProjeto(String nomeDoProjeto);
 
+
     List<ProjetoModel> findByNomeDoProjetoStartingWith(String prefix);
 
     List<ProjetoModel> findByValorProjetoGreaterThan(float valorProjeto);
