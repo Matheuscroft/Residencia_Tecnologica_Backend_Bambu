@@ -1,8 +1,11 @@
 package com.bambu.backend.controllers;
 
+import com.bambu.backend.models.EtapaModel;
 import com.bambu.backend.models.ProjetoModel;
 import com.bambu.backend.dtos.ProjetoDto;
+import com.bambu.backend.repositories.EtapaRepository;
 import com.bambu.backend.repositories.ProjetoRepository;
+import com.bambu.backend.services.ProjetoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +22,24 @@ public class ProjetoController {
 
     @Autowired
     private ProjetoRepository projetoRepository;
+    @Autowired
+    private EtapaRepository etapaRepository;
+    @Autowired
+    private ProjetoService projetoService;
 
     @PostMapping("/projetos")
-    public ResponseEntity<ProjetoModel> criarProjeto(@RequestBody @Valid ProjetoDto projetoDto) {
-        ProjetoModel projeto = new ProjetoModel();
-        BeanUtils.copyProperties(projetoDto, projeto);
-
-        ProjetoModel projetoSalvo = projetoRepository.save(projeto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(projetoSalvo);
+    public ResponseEntity<Object> criarProjeto(@RequestBody @Valid ProjetoDto projetoDto) {
+        try {
+            ProjetoModel projetoSalvo = projetoService.criarProjeto(projetoDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(projetoSalvo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
+
+
+
+
 
     @GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getAllProjects(){
@@ -36,17 +47,6 @@ public class ProjetoController {
         return ResponseEntity.status(HttpStatus.OK).body(allProjetos);
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<List<ProjetoModel>> getProjetosByValorProjeto(@RequestParam float valorProjeto){
-        List<ProjetoModel> projetos = projetoRepository.findByValorProjetoGreaterThan(valorProjeto);
-        return ResponseEntity.status(HttpStatus.OK).body(projetos);
-    }
-
-    @GetMapping("/projetos")
-    public ResponseEntity<List<ProjetoModel>> getProjetosByPrefix(@RequestParam String prefix){
-        List<ProjetoModel> projetos = projetoRepository.findByNomeDoProjetoStartingWith(prefix);
-        return ResponseEntity.status(HttpStatus.OK).body(projetos);
-    }
 
     @GetMapping("/projetos/{id}")
     public ResponseEntity<Object> getProjetoById(@PathVariable UUID id){
