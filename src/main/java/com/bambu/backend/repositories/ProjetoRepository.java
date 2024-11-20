@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface ProjetoRepository extends JpaRepository<ProjetoModel, UUID> {
 
-    List<ProjetoModel> findByName(String nomeDoProjeto);
+    List<ProjetoModel> findByNomeDoProjeto(String nomeDoProjeto);
 
     List<ProjetoModel> findByNomeDoProjetoStartingWith(String prefix);
 
