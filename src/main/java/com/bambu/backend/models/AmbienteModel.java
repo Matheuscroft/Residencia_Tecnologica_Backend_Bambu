@@ -6,20 +6,16 @@ import lombok.Data;
 import java.util.UUID;
 
 @Entity
-@Table(name = "arquiteto")
+@Table(name = "ambiente")
 @Data
-public class ArquitetoModel {
+public class AmbienteModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private String nome;
+    private String nomeAmbiente;
 
-    private String cpf;
+    private String tipoAmbiente;
 
-    private String cadastro_cau;
-
-    private String email;
-
-    private String senha;
+    private String tamanhoAmbiente;
 }
