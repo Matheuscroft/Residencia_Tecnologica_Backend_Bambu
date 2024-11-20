@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +41,12 @@ public class ProjetoController {
 
 
 
+
+    @GetMapping("/projetos")
+    public ResponseEntity<List<ProjetoModel>> getProjetosByName(@RequestParam String nomeDoProjeto) {
+        List<ProjetoModel> projeto = projetoRepository.findByNomeDoProjeto(nomeDoProjeto);
+        return ResponseEntity.status(HttpStatus.OK).body(projeto);
+    }
 
     @GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getAllProjects(){
