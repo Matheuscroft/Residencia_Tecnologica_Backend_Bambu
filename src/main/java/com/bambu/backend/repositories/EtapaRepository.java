@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface EtapaRepository extends JpaRepository<EtapaModel, UUID> {
+
+    void deleteByProjetoId(UUID projetoId);
 }

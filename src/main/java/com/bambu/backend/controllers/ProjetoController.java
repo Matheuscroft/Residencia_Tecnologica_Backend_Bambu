@@ -42,11 +42,11 @@ public class ProjetoController {
 
 
 
-    @GetMapping("/projetos")
+    /*@GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getProjetosByName(@RequestParam String nomeDoProjeto) {
         List<ProjetoModel> projeto = projetoRepository.findByNomeDoProjeto(nomeDoProjeto);
         return ResponseEntity.status(HttpStatus.OK).body(projeto);
-    }
+    }*/
 
     @GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getAllProjects(){
@@ -63,12 +63,16 @@ public class ProjetoController {
 
     @DeleteMapping("/projetos/{id}")
     public ResponseEntity<String> deleteProjetoById(@PathVariable UUID id){
+
+        System.out.println("entrou");
+
         Optional<ProjetoModel> produtoEncontrado = projetoRepository.findById(id);
         if(produtoEncontrado.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
         }
 
-        projetoRepository.delete(produtoEncontrado.get());
+        //projetoRepository.delete(produtoEncontrado.get());
+        projetoService.deleteProjetoAndAmbientes(id);
         return ResponseEntity.status(HttpStatus.OK).body("Projeto removido com sucesso!");
     }
 

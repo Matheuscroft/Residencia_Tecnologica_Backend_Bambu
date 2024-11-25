@@ -3,11 +3,16 @@ package com.bambu.backend.services;
 import com.bambu.backend.models.EtapaModel;
 import com.bambu.backend.models.ProjetoModel;
 import com.bambu.backend.dtos.ProjetoDto;
+import com.bambu.backend.repositories.AmbienteRepository;
 import com.bambu.backend.repositories.EtapaRepository;
 import com.bambu.backend.repositories.ProjetoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjetoService {
@@ -17,6 +22,13 @@ public class ProjetoService {
 
     @Autowired
     private EtapaRepository etapaRepository;
+
+    @Autowired
+    private AmbienteRepository ambienteRepository;
+
+    public Optional<ProjetoModel> findById(UUID id) {
+        return projetoRepository.findById(id);
+    }
 
     public ProjetoModel criarProjeto(ProjetoDto projetoDto) {
 
@@ -55,4 +67,13 @@ public class ProjetoService {
 
         etapaRepository.save(etapa);
     }
+
+    @Transactional
+    public void deleteProjetoAndAmbientes(UUID projetoId) {
+
+        etapaRepository.deleteByProjetoId(projetoId);
+        ambienteRepository.deleteByProjetoId(projetoId);
+        projetoRepository.deleteById(projetoId);
+    }
+
 }
