@@ -1,7 +1,9 @@
 package com.bambu.backend.dtos;
 
 import java.util.List;
-
+//public record AmbienteDto(@NotNull String nomeAmbiente,
+//                          @NotBlank String tipoAmbiente,
+//                          @NotNull String tamanhoAmbiente) {
 public class AmbienteDto {
 
     private String nome;
