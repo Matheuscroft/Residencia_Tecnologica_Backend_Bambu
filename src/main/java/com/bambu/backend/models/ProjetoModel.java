@@ -1,8 +1,10 @@
 package com.bambu.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.Date;
 
@@ -26,8 +28,6 @@ public class ProjetoModel {
 
     private String tipoObra;
 
-    private String statusProjeto;
-
     private float valorProjeto;
 
     private float porcentagemEtapa1;
@@ -41,6 +41,11 @@ public class ProjetoModel {
     private float porcentagemEtapa5;
 
     private String statusProjeto;
+
+    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<EtapaModel> etapas;
+
 
     public UUID getId() {
         return id;

@@ -1,16 +1,16 @@
 package com.bambu.backend.controllers;
 
+import com.bambu.backend.dtos.EtapaDto;
 import com.bambu.backend.models.EtapaModel;
 import com.bambu.backend.repositories.EtapaRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -27,5 +27,21 @@ public class EtapaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(etapas);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EtapaModel> atualizarEtapa(@PathVariable UUID id, @RequestBody EtapaDto etapaDto) {
+        Optional<EtapaModel> etapaOptional = etapaRepository.findById(id);
+        if (etapaOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        EtapaModel etapa = etapaOptional.get();
+
+        BeanUtils.copyProperties(etapaDto, etapa, "id", "projeto", "reunioes");
+
+        etapaRepository.save(etapa);
+
+        return ResponseEntity.ok(etapa);
     }
 }

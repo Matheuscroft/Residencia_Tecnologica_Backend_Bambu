@@ -3,14 +3,18 @@ package com.bambu.backend.services;
 import com.bambu.backend.models.EtapaModel;
 import com.bambu.backend.models.ProjetoModel;
 import com.bambu.backend.dtos.ProjetoDto;
+import com.bambu.backend.models.ReuniaoModel;
 import com.bambu.backend.repositories.AmbienteRepository;
 import com.bambu.backend.repositories.EtapaRepository;
 import com.bambu.backend.repositories.ProjetoRepository;
+import com.bambu.backend.repositories.ReuniaoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +29,9 @@ public class ProjetoService {
 
     @Autowired
     private AmbienteRepository ambienteRepository;
+
+    @Autowired
+    private ReuniaoRepository reuniaoRepository;
 
     public Optional<ProjetoModel> findById(UUID id) {
         return projetoRepository.findById(id);
@@ -65,8 +72,29 @@ public class ProjetoService {
         etapa.setDataPrevistaFim(projeto.getDataDeInicio());
         etapa.setProjeto(projeto);
 
-        etapaRepository.save(etapa);
+        EtapaModel etapaSalva = etapaRepository.save(etapa);
+
+        criarReunioesPadrao(etapaSalva);
     }
+
+    private void criarReunioesPadrao(EtapaModel etapa) {
+        ReuniaoModel reuniao1 = new ReuniaoModel();
+        reuniao1.setNomeReuniao("Reunião 1");
+        reuniao1.setDataReuniao(new Date());
+        reuniao1.setLocal("Local padrão");
+        reuniao1.setApontamentos("Apontamentos para a reunião");
+        reuniao1.setEtapa(etapa);
+
+        ReuniaoModel reuniao2 = new ReuniaoModel();
+        reuniao2.setNomeReuniao("Reunião 2");
+        reuniao2.setDataReuniao(new Date());
+        reuniao2.setLocal("Local padrão");
+        reuniao2.setApontamentos("Apontamentos para a reunião");
+        reuniao2.setEtapa(etapa);
+
+        reuniaoRepository.saveAll(List.of(reuniao1, reuniao2));
+    }
+
 
     @Transactional
     public void deleteProjetoAndAmbientes(UUID projetoId) {

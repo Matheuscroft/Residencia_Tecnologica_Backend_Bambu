@@ -1,7 +1,9 @@
 package com.bambu.backend.controllers;
 
 import com.bambu.backend.dtos.ReuniaoDto;
+import com.bambu.backend.models.EtapaModel;
 import com.bambu.backend.models.ReuniaoModel;
+import com.bambu.backend.repositories.EtapaRepository;
 import com.bambu.backend.repositories.ProjetoRepository;
 import com.bambu.backend.repositories.ReuniaoRepository;
 import org.springframework.beans.BeanUtils;
@@ -23,17 +25,50 @@ public class ReuniaoController {
     @Autowired
     private ProjetoRepository projetoRepository;
 
-    @GetMapping("/reunioes")
-    public ResponseEntity<List<ReuniaoModel>> getAllReunioes() {
-        List AllReuniaos = reuniaoRepository.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(AllReuniaos);
+    @Autowired
+    private EtapaRepository etapaRepository;
+
+    @PostMapping("/reunioes")
+    public ResponseEntity<Object> createReuniao(@RequestBody ReuniaoDto reuniaoDto,
+                                                @RequestParam UUID etapaId) {
+        if (reuniaoDto.nomeReuniao() == null || reuniaoDto.nomeReuniao().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O campo 'nomeReuniao' é obrigatório");
+        }
+
+        if (reuniaoDto.dataReuniao() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O campo 'dataReuniao' é obrigatório");
+        }
+
+        Optional<EtapaModel> etapa = etapaRepository.findById(etapaId);
+        if (etapa.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("A etapa especificada não foi encontrada");
+        }
+
+        ReuniaoModel novaReuniao = new ReuniaoModel();
+        BeanUtils.copyProperties(reuniaoDto, novaReuniao);
+        novaReuniao.setId(UUID.randomUUID());
+        novaReuniao.setEtapa(etapa.get());
+
+        ReuniaoModel reuniaoSalva = reuniaoRepository.save(novaReuniao);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reuniaoSalva);
     }
 
-    @GetMapping("/reunioes/{id}")
-    public ResponseEntity<ReuniaoModel> getReuniaoById(@PathVariable UUID id) {
-        Optional<ReuniaoModel> Reuniao = reuniaoRepository.findById(id);
-        return Reuniao.map(reuniaoModel -> ResponseEntity.status(HttpStatus.OK).body(reuniaoModel)).orElse(ResponseEntity.notFound().build());
+
+    @GetMapping("/reunioes")
+    public ResponseEntity<List<ReuniaoModel>> getAllReunioes() {
+        List AllReunioes = reuniaoRepository.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(AllReunioes);
     }
+
+    @GetMapping("/reunioes/{etapaId}")
+    public ResponseEntity<List<ReuniaoModel>> getReunioesByEtapaId(@PathVariable UUID etapaId) {
+        List<ReuniaoModel> reunioes = reuniaoRepository.findByEtapaId(etapaId);
+        if (reunioes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reunioes);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(reunioes);
+    }
+
 
     @DeleteMapping("/reunioes/{id}")
     public ResponseEntity<String> deleteReuniaoById(@PathVariable UUID id) {
@@ -46,15 +81,25 @@ public class ReuniaoController {
         return ResponseEntity.status(HttpStatus.OK).body("Reuniao removida com sucessor");
     }
 
-    @PutMapping
-    public ResponseEntity<Object> updateReuniaoById(@PathVariable UUID id, @RequestBody ReuniaoDto reuniaoDto) {
-        Optional<ReuniaoModel> Reuniao = reuniaoRepository.findById(id);
-        if (Reuniao.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reuniao nao encontrado");
+    @PutMapping("/reunioes/{id}")
+    public ResponseEntity<ReuniaoModel> atualizarReuniao(@PathVariable UUID id, @RequestBody ReuniaoDto reuniaoDto) {
+        Optional<ReuniaoModel> reuniaoOptional = reuniaoRepository.findById(id);
+        if (reuniaoOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        ReuniaoModel reuniao = Reuniao.get();
-        BeanUtils.copyProperties(reuniaoDto, reuniao);
-        return ResponseEntity.status(HttpStatus.OK).body(reuniaoRepository.save(reuniao));
+        ReuniaoModel reuniao = reuniaoOptional.get();
+        // Atualizar os campos
+        reuniao.setNomeReuniao(reuniaoDto.nomeReuniao());
+        reuniao.setDataReuniao(reuniaoDto.dataReuniao());
+        reuniao.setLocal(reuniaoDto.local());
+        reuniao.setApontamentos(reuniaoDto.apontamentos());
+
+        // Não altere o ID
+        reuniaoRepository.save(reuniao);
+
+        return ResponseEntity.ok(reuniao);
     }
+
+
 }

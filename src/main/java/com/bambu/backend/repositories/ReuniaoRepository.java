@@ -12,7 +12,9 @@ import java.util.List;
 public interface ReuniaoRepository extends JpaRepository<ReuniaoModel, UUID> {
     List<ReuniaoModel> findAll();
     
-    List<ReuniaoModel> findByName(String nomeReuniao);
+    List<ReuniaoModel> findByNomeReuniao(String nomeReuniao);
 
     List<ReuniaoModel> findByDataReuniao(Date dataReuniao);
+
+    List<ReuniaoModel> findByEtapaId(UUID etapaId);
 }
