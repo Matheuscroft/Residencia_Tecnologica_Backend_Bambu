@@ -16,5 +16,6 @@ public record ProjetoDto (@NotBlank String nomeDoProjeto,
                           @NotNull float porcentagemEtapa2,
                           @NotNull float porcentagemEtapa3,
                           @NotNull float porcentagemEtapa4,
-                          @NotNull float porcentagemEtapa5
+                          @NotNull float porcentagemEtapa5,
+                          @NotBlank String statusProjeto
                           ){}
