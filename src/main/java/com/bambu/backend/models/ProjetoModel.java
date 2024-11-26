@@ -26,6 +26,8 @@ public class ProjetoModel {
 
     private String tipoObra;
 
+    private String statusProjeto;
+
     private float valorProjeto;
 
     private float porcentagemEtapa1;
