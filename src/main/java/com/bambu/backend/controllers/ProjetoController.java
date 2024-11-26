@@ -38,10 +38,6 @@ public class ProjetoController {
         }
     }
 
-
-
-
-
     /*@GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getProjetosByName(@RequestParam String nomeDoProjeto) {
         List<ProjetoModel> projeto = projetoRepository.findByNomeDoProjeto(nomeDoProjeto);
