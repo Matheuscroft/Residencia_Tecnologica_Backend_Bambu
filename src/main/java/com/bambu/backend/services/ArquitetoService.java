@@ -1,6 +1,7 @@
 package com.bambu.backend.services;
 
 import com.bambu.backend.dtos.ArquitetoDto;
+import com.bambu.backend.exceptions.ArquitetoNotFoundException;
 import com.bambu.backend.models.ArquitetoModel;
 import com.bambu.backend.repositories.ArquitetoRepository;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +25,14 @@ public class ArquitetoService {
     }
 
     public Optional<ArquitetoModel> getArquitetoById(UUID id) {
-        return arquitetoRepository.findById(id);
+
+        Optional<ArquitetoModel> optionalArquitetoModel = arquitetoRepository.findById(id);
+
+        if (optionalArquitetoModel.isEmpty()) {
+            throw new ArquitetoNotFoundException(id);
+        }
+
+        return optionalArquitetoModel;
     }
 
     public List<ArquitetoModel> getAllArquitetos() {
@@ -33,21 +41,23 @@ public class ArquitetoService {
 
     public boolean deleteArquitetoById(UUID id) {
         Optional<ArquitetoModel> arquitetoModelOptional = arquitetoRepository.findById(id);
-        if (arquitetoModelOptional.isPresent()) {
-            arquitetoRepository.delete(arquitetoModelOptional.get());
-            return true;
+        if (arquitetoModelOptional.isEmpty()) {
+            throw new ArquitetoNotFoundException(id);
         }
-        return false;
+
+        arquitetoRepository.delete(arquitetoModelOptional.get());
+        return true;
     }
 
     public Optional<ArquitetoModel> updateArquiteto(UUID id, ArquitetoDto arquitetoDto) {
         Optional<ArquitetoModel> arquitetoModelOptional = arquitetoRepository.findById(id);
-        if (arquitetoModelOptional.isPresent()) {
-            ArquitetoModel arquiteto = arquitetoModelOptional.get();
-            BeanUtils.copyProperties(arquitetoDto, arquiteto);
-            return Optional.of(arquitetoRepository.save(arquiteto));
+        if (arquitetoModelOptional.isEmpty()) {
+            throw new ArquitetoNotFoundException(id);
         }
-        return Optional.empty();
+
+        ArquitetoModel arquiteto = arquitetoModelOptional.get();
+        BeanUtils.copyProperties(arquitetoDto, arquiteto);
+        return Optional.of(arquitetoRepository.save(arquiteto));
     }
 
     public List<ArquitetoModel> getArquitetosByNome(String nome) {
