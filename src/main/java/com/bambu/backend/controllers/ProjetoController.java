@@ -22,10 +22,6 @@ import java.util.UUID;
 public class ProjetoController {
 
     @Autowired
-    private ProjetoRepository projetoRepository;
-    @Autowired
-    private EtapaRepository etapaRepository;
-    @Autowired
     private ProjetoService projetoService;
 
     @PostMapping("/projetos")
@@ -38,49 +34,40 @@ public class ProjetoController {
         }
     }
 
-    /*@GetMapping("/projetos")
-    public ResponseEntity<List<ProjetoModel>> getProjetosByName(@RequestParam String nomeDoProjeto) {
-        List<ProjetoModel> projeto = projetoRepository.findByNomeDoProjeto(nomeDoProjeto);
-        return ResponseEntity.status(HttpStatus.OK).body(projeto);
-    }*/
-
     @GetMapping("/projetos")
     public ResponseEntity<List<ProjetoModel>> getAllProjects(){
-        List<ProjetoModel> allProjetos = projetoRepository.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(allProjetos);
+        return ResponseEntity.status(HttpStatus.OK).body(projetoService.getAllProjects());
     }
 
 
     @GetMapping("/projetos/{id}")
     public ResponseEntity<Object> getProjetoById(@PathVariable UUID id){
-        Optional<ProjetoModel> projetoEncontrado = projetoRepository.findById(id);
-        return projetoEncontrado.<ResponseEntity<Object>>map(projetoModel -> ResponseEntity.status(HttpStatus.OK).body(projetoModel)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!"));
+        Optional<ProjetoModel> projetoEncontrado = projetoService.findById(id);
+
+        if (projetoEncontrado.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(projetoEncontrado.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
+        }
     }
 
     @DeleteMapping("/projetos/{id}")
     public ResponseEntity<String> deleteProjetoById(@PathVariable UUID id){
-
-        System.out.println("entrou");
-
-        Optional<ProjetoModel> produtoEncontrado = projetoRepository.findById(id);
-        if(produtoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
+        try {
+            projetoService.deleteProjetoAndAmbientes(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Projeto removido com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-        //projetoRepository.delete(produtoEncontrado.get());
-        projetoService.deleteProjetoAndAmbientes(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Projeto removido com sucesso!");
     }
 
     @PutMapping("/projetos/{id}")
     public ResponseEntity<Object> updateProjetoById(@PathVariable UUID id, @RequestBody ProjetoDto projetoDto){
-        Optional<ProjetoModel> produtoEncontrado = projetoRepository.findById(id);
-        if(produtoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Projeto não encontrado!");
+        try {
+            ProjetoModel projetoAtualizado = projetoService.updateProjeto(id, projetoDto);
+            return ResponseEntity.status(HttpStatus.OK).body(projetoAtualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-        ProjetoModel projeto = produtoEncontrado.get();
-        BeanUtils.copyProperties(projetoDto, projeto);
-        return ResponseEntity.status(HttpStatus.OK).body(projetoRepository.save(projeto));
     }
 }

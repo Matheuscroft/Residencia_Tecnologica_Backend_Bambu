@@ -22,11 +22,8 @@ public class AmbienteService {
         for (AmbienteDto ambienteDto : ambientes) {
             AmbienteModel ambienteModel = new AmbienteModel();
 
-            ambienteModel.setNome(ambienteDto.getNome());
-
-            String tamanhoString = ambienteDto.getTamanho().replace("m²", "").trim();
-            ambienteModel.setTamanho(Float.parseFloat(tamanhoString));
-
+            ambienteModel.setNome(ambienteDto.nome());
+            ambienteModel.setTamanho(ambienteDto.tamanho());
             ambienteModel.setProjeto(projeto);
 
             ambienteRepository.save(ambienteModel);
@@ -41,9 +38,9 @@ public class AmbienteService {
     }
 
     private AmbienteDto convertToDto(AmbienteModel ambiente) {
-        AmbienteDto dto = new AmbienteDto();
-        dto.setNome(ambiente.getNome());
-        dto.setTamanho(String.valueOf(ambiente.getTamanho()));
-        return dto;
+        return new AmbienteDto(
+                ambiente.getNome(),
+                ambiente.getTamanho()
+        );
     }
 }

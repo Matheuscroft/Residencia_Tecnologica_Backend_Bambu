@@ -33,6 +33,10 @@ public class ProjetoService {
     @Autowired
     private ReuniaoRepository reuniaoRepository;
 
+    public List<ProjetoModel> getAllProjects() {
+        return projetoRepository.findAll();
+    }
+
     public Optional<ProjetoModel> findById(UUID id) {
         return projetoRepository.findById(id);
     }
@@ -102,6 +106,14 @@ public class ProjetoService {
         etapaRepository.deleteByProjetoId(projetoId);
         ambienteRepository.deleteByProjetoId(projetoId);
         projetoRepository.deleteById(projetoId);
+    }
+
+    public ProjetoModel updateProjeto(UUID id, ProjetoDto projetoDto) {
+        ProjetoModel projeto = projetoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado!"));
+
+        BeanUtils.copyProperties(projetoDto, projeto);
+        return projetoRepository.save(projeto);
     }
 
 }
