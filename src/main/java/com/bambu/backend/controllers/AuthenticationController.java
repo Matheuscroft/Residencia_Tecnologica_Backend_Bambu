@@ -4,11 +4,13 @@ import com.bambu.backend.dtos.AuthenticationDTO;
 import com.bambu.backend.dtos.RegisterDTO;
 import com.bambu.backend.models.User;
 import com.bambu.backend.repositories.UserRepository;
+import com.bambu.backend.services.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,13 +25,17 @@ public class AuthenticationController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO authenticationDTO){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(authenticationDTO.login(), authenticationDTO.password());
-        var auth = authenticationManager.authenticate(usernamePassword);
+        UsernamePasswordAuthenticationToken credential = new UsernamePasswordAuthenticationToken(authenticationDTO.login(), authenticationDTO.password());
+        Authentication authenticate = authenticationManager.authenticate(credential);
 
-        return ResponseEntity.ok().build();
+        String token = tokenService.generateToken((User) authenticate.getPrincipal());
+
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
